@@ -1,0 +1,151 @@
+This part of the lab is presented as a Hands-on Labs Interactive Simulation. This will allow you to experience steps which are too time-consuming or resource intensive to do live in the lab environment. In this simulation, you can use the software interface as if you are interacting with a live environment.
+
+The orange boxes show where to click, and the left and right arrow keys can also be used to move through the simulation in either direction.
+
+In this module you will walk through the steps to generate an API Token, which is required to interact with VMware Cloud on AWS from the command line interface. You will then execute a number of commands with both PowerCLI and Datacenter CLI against the Software-Defined Data Center and vCenter Server inside VMware Cloud to query information and perform certain tasks and deployments.
+
+To begin, you will obtain an API Token from the VMware Cloud Services console:
+
+Generate an API Token
+
+Click the drop-down box in the top right corner
+Select My Account
+Navigate to the API Tokens section
+Click the GENERATE A NEW API TOKEN button
+Select the Token Name field
+Type HOL-Token for the name
+Click the scroll bar to page down once
+Check the Organization Member box under Organization Roles
+Expand the Service Roles options
+Select the box for Administrator
+Click the GENERATE button
+In the pop-up screen, click the COPY option
+Maximize the token.txt file from taskbar
+Right-click the first line to add the token
+Click Paste
+Click the File menu
+Proceed to Save the file
+Once saved, minimize notepad
+Back in the Services Console, click CONTINUE
+Minimize the Chrome browser
+You have successfully completed the procedure to generate a VMware Cloud Services API Token. You are now ready to authenticate with this service from command line tools and manage the environment.
+
+Now let's connect to VMware Cloud on AWS with PowerCLI and obtain information about the SDDC and audit the recent tasks.
+
+Click the PowerShell prompt
+Type connect-vmc -Refreshtoken then add a space
+Right-click to paste the token currently copied in the clipboard
+Click paste to insert the API Token
+Press Enter to establish the connection
+Type Get-VmcSddc and press Enter. This commands returns the name, state, type and link state for the SDDC among other details.
+Type Get-Task | Select-Object -Last 10 | Format-Table and press Enter. A list of the last 10 tasks performed against the SDDC will be displayed.
+Type Get-Task -Status Error | Sort-Object FinishTime | Select-Object -Last 15 and press Enter. This will return the last 15 tasks with an Error status.
+Type Get-Task -Status Success | Sort-Object StartTime | Select-Object -Last 10 and press Enter. A list of the last 10 tasks with success status will be shown.
+
+You have used the previous commands to query the environment and gather information, let's now execute commands to make changes to the environment.
+Type Set-VmcSddc -Sddc HOL-SDDC -Name MySDDC01 and press Enter. This command changes the name of the SDDC from HOL-SDDC to MySDDC01
+Click Chrome in taskbar, note the new SDDC name
+Click the PowerShell window to go back and execute other cmdlets
+Rename the SDDC back to its original name by typing Set-VmcSddc -Sddc MySDDC01 -Name HOL-SDDC then hit Enter
+Minimize the PowerShell window
+Click the refresh button. Note the new SDDC name.
+Minimize the browser one more time
+Click on the PowerShell window from taskbar. You will now run additional cmdlets to scale out the resources in the SDDC.
+Type Add-VmcSddcHost -HostCount 3 -RunAsync -Sddc HOL-SDDC -WhatIf  and press Enter
+The Add-VmcSddcHost cmdlet would add nodes to the SDDC as demonstrated with the command. The -WhatIf option is used here to emulate the addition of hosts only, while still validating what the command would perform.
+Type New-VmcSddc -Name "DEV-SDDC" -Provider Aws -HostCount 1 -Region "US_EAST_1" -SddcType SingleHost -SkipAccountLinking -WhatIf  This one-liner command emulates creating an additional SDDC named DEV-SDDC under the same Cloud Organization.
+
+PowerCLI has an array of cmdlets available to interact with VMware Cloud on AWS. In this first section of the module you were able to try out a few of them and get a sense of the automation potential with this tool. To learn more about PowerCLI, visit https://code.vmware.com/tools
+To continue with the next section, minimize the PowerShell window.
+
+
+Datacenter CLI is another powerful command line tool that is available to manage VMware Cloud on AWS environments. In this next section, you will perform a number of tasks against a Software-Defined Data Center and the vCenter Server running inside it.
+
+Click the command prompt on the Putty window running Datacenter CLI
+Type dcli +vmc +i and press Enter  - The +i here is for interactive session.
+Restore the token.txt file window from the taskbar
+Right-click the API Token
+Click Copy
+Minimize the token.txt file
+Click the command prompt next to Refresh Token: to paste the API Token
+Press Enter
+Type Y to save the refresh token in the credstore, then press Enter
+Click the Commands.txt file on the taskbar
+Due to the syntax length and complexity of these commands, instead of typing them all out, you will copy and paste each to accomplish the described tasks.
+Right-click on the first command
+Click the Copy option
+Click the DCLI prompt to paste the copied command
+Press Enter to execute and query for Org name and ID
+Right-click the second command from commands.txt file
+Copy it to clipboard
+Click DCLI prompt to paste this second command
+Press Enter to query for SDDC name and SDDC ID
+Select the third command on the list with a right-click
+Copy it to clipboard
+Again, click DCLI prompt to paste it
+Press Enter. This will return the date of creation, type and state for the SDDC
+Scroll down on the commands.txt file
+Right-click the next command from this list
+Copy it to clipboard
+Click DCLI prompt to paste
+Press Enter to obtain the URL of the vCenter running inside the SDDC
+Back in the commands.txt file, right-click the next command
+Copy it to clipboard
+Paste in the DCLI prompt
+Pressing enter here will display the Account Link State
+Type Exit followed by Enter to conclude the DCLI session
+Let's now review how Datacenter CLI can help managing the vCenter Server running inside the Software-Defined Data Center in VMware Cloud on AWS.
+
+Type clear followed by enter on the Linux prompt
+Minimize the commands.txt file window
+Maximize the Putty session window for better view in the next few tasks
+Type dcli +server and add a space (vCenter URL is needed here and will be copied from UI)
+Click to restore Chrome from taskbar
+Right-click the address bar in the browser to copy the URL
+Select Copy
+Minimize Chrome
+Click on the Putty prompt to paste the copied URL
+Continue by typing +i +username cloudadmin@vmc.local +password '  (let's get the cloudadmin password from the UI). The +i here is for interactive session.
+Restore Chrome one more time to see the password for the cloudadmin@vmc.local account
+Click the SDDC Console tab
+Click the OPEN VCENTER button
+Click on SHOW CREDENTIALS
+In the pop-up screen, select the option to copy the password to clipboard
+Click CLOSE
+Restore Putty from taskbar
+Click to the right of +password in command prompt to paste the copied password
+Complete the syntax with an apostrophe ( ' ) then press Enter. This command establishes the connection to the vCenter Server inside the SDDC.
+Type vcenter folder list and press Enter - this command lists all folders and their IDs which will be used in later steps.
+Type vcenter datastore list followed by Enter - this will display IDs for datastores in vCenter.
+Type vcenter resourcepool list and press Enter - a list of the resource pool IDs and names will be displayed.
+
+With the queried information for Folders, Datastores and Resource Pools, specifically their IDs, you can now deploy virtual machines from the current interactive Datacenter CLI session.
+Type vcenter vm create --name TestVM01 --guest-os UBUNTU --placement-folder
+Click on group-v44 which is the ID for the Workloads folder where the VM will be placed.
+Click to the right of --placement-folder to paste the copied ID
+Continue building the command, type --placement-datastore
+Select datastore-48 from table. This ID correlates to the WorkloadDatastore, which is the datastore users have permissions to within a VMware Cloud on AWS environment.
+Click to paste this ID into the command prompt
+Type --placement-resource-pool
+Click resgroup-47 to copy it to clipboard
+Click at end of command prompt to paste the resource pool ID
+Press Enter to execute - This command creates a virtual machine named TestVM01 with Ubuntu as its operating system using the Workloads folder, WorkloadDatastore and Compute-ResourcePool for its location inside vCenter. DCLI requires the use of object IDs instead of names to execute these type of command actions or when creating scripts for more advanced automation.
+Click on the Chrome browser
+Click the vCenter tab to see the newly created VM TestVM01
+Select the VM to view its settings, including the operating system and resource pool placement
+Go back to Putty session and create a second VM by just editing the name while reusing the previous command syntax.
+Press the UP arrow key, backspace once to erase the number 1 and type 2 in its place. Press Enter to create the second virtual machine
+Click back on Chrome to see the second VM created in vCenter
+Now let's delete both of these virtual machines from DCLI. Click the Putty window to restore it
+Type vcenter vm list and press Enter
+Type vcenter vm delete --vm and add a space
+Click the VM ID correlating to TestVM01 from the list to copy it to clipboard
+Click next to --vm in command line to paste the VM ID. Press Enter
+Press UP arrow key to recall last command
+Backspace twice and enter 10 to delete TestVM02 which has an ID of vm-1010. Press Enter to commit
+Review vCenter one last time to see that both VMs have been removed.
+This concludes the Datacenter CLI section and the module. To learn more about Datacenter CLI, visit https://code.vmware.com/tools
+
+The demonstrations performed in this module are basic but provide details of the automation potential available with these readily available tools to manage VMware Cloud on AWS from command line and advanced scripting.
+
+To return to the lab, click the link in the top right corner or close this browser ta
